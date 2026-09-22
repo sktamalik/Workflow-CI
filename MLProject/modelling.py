@@ -47,13 +47,15 @@ TARGET = "Outcome"
 RANDOM_STATE = 42
 TEST_SIZE = 0.2
 
-DAGSHUB_TOKEN = os.environ.get("DAGSHUB_TOKEN", "")
+DAGSHUB_TOKEN = os.environ.get("DAGSHUB_USER_TOKEN", "") or os.environ.get("DAGSHUB_TOKEN", "")
 
 
 def setup_tracking():
     """MLflow online DagsHub bila token ada, fallback local."""
     if DAGSHUB_TOKEN:
         import dagshub
+        # dagshub client membaca app token dari env DAGSHUB_USER_TOKEN
+        os.environ["DAGSHUB_USER_TOKEN"] = DAGSHUB_TOKEN
         dagshub.init(repo_owner="sktamalik", repo_name="diabetes-mlflow", mlflow=True)
         print("Tracking: DagsHub online")
     else:
