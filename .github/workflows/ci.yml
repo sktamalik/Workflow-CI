@@ -57,7 +57,7 @@ jobs:
         env:
           DAGSHUB_USER_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
         run: |
-          python - <<'PY' > run_id.txt
+          python - <<'PY' > raw_run_id.txt
           import os
           import dagshub
           import mlflow
@@ -69,11 +69,19 @@ jobs:
           runs = mlflow.search_runs(experiment_ids=[exp.experiment_id], order_by=["start_time DESC"])
           print(runs.iloc[0]["run_id"])
           PY
+          # Ambil hanya token hex 32 karakter (buang baris log dagshub)
+          grep -oE '[0-9a-f]{32}' raw_run_id.txt | tail -1 > run_id.txt
           echo "RUN_ID=$(cat run_id.txt)"
+          test -n "$(cat run_id.txt)"
 
       - name: Build Docker image dari model MLflow (mlflow build-docker)
+        env:
+          DAGSHUB_USER_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
         run: |
           RUN_ID=$(cat run_id.txt)
+          export MLFLOW_TRACKING_URI="https://dagshub.com/sktamalik/diabetes-mlflow.mlflow"
+          export MLFLOW_TRACKING_USERNAME="sktamalik"
+          export MLFLOW_TRACKING_PASSWORD="${{ secrets.DAGSHUB_TOKEN }}"
           mlflow models build-docker \
             --model-uri "runs:/${RUN_ID}/model" \
             --name sktamalik/diabetes-ml-ci \
