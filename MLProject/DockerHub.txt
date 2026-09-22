@@ -1,0 +1,9 @@
+Docker Hub Image: https://hub.docker.com/r/sktamalik/diabetes-ml
+
+Tag:
+- latest : image model hasil eksperimen (Membangun_model)
+- ci     : image hasil build otomatis dari workflow CI (mlflow models build-docker)
+
+Pull:
+docker pull sktamalik/diabetes-ml:latest
+docker pull sktamalik/diabetes-ml:ci
